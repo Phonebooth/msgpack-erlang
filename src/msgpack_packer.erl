@@ -61,7 +61,7 @@ pack(Map, Opt = ?OPTION{map_format=jsx}) when Map =:= [{}]->
 pack([{_,_}|_] = Map, Opt = ?OPTION{map_format=jsx}) ->
     pack_map(Map, Opt);
 
-pack({string, String}, ?OPTION{spec=new, pack_str=from_tagged_list}=Opt) ->
+pack({string, String}, ?OPTION{spec=new, pack_str=PackStr}=Opt) when PackStr =:= from_tagged_list orelse PackStr =:= from_list_opt_tagged_list ->
     case pack_string(String, Opt) of
         {error, _} -> throw({badarg, String});
         Bin when is_binary(Bin) -> Bin
@@ -85,7 +85,10 @@ pack(List, ?OPTION{spec=new, pack_str=from_list}=Opt)  when is_list(List) ->
     catch error:badarg -> pack_array(List, Opt)
     end;
 
-pack(List, Opt)  when is_list(List) ->
+pack({array, List}, ?OPTION{spec=new, allow_tagged_array_pack=true}=Opt) when is_list(List) ->
+    pack_array(List, Opt);
+
+pack(List, Opt) when is_list(List) ->
     pack_array(List, Opt);
 
 pack(Other, ?OPTION{spec=new} = Opt) ->

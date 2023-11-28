@@ -54,7 +54,8 @@
          {known_atoms, [atom()]} |
          {unpack_str, as_binary|as_list|as_tagged_list} |
          {validate_string, boolean()} |
-         {pack_str, from_binary|from_list|from_tagged_list|none} |
+         {pack_str, from_binary|from_list|from_tagged_list|from_list_opt_tagged_list|none} |
+         {allow_tagged_array_pack, boolean()} |
          {map_format, map|jiffy|jsx} |
          {ext, {msgpack:ext_packer(), msgpack:ext_unpacker()} | module()}].
 
@@ -173,8 +174,11 @@ parse_options([{validate_string, Bool}|T], Opt) when is_boolean(Bool) ->
     parse_options(T, Opt?OPTION{validate_string=Bool});
 
 parse_options([{pack_str, From}|T], Opt)
-  when From =:= from_binary orelse From =:= from_list orelse From =:= from_tagged_list orelse From =:= none ->
+  when From =:= from_binary orelse From =:= from_list orelse From =:= from_tagged_list orelse From =:= from_list_opt_tagged_list orelse From =:= none ->
     parse_options(T, Opt?OPTION{pack_str=From});
+
+parse_options([{allow_tagged_array_pack, Bool}|T], Opt) when is_boolean(Bool) ->
+    parse_options(T, Opt?OPTION{allow_tagged_array_pack=Bool});
 
 parse_options([{map_format,Type}|T], Opt0)
   when Type =:= jsx; Type =:= jiffy; Type =:= map ->
